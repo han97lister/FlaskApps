@@ -2,6 +2,7 @@ from flask import render_template, redirect, url_for
 
 from application import app, db
 from application.models import Todo
+from application.forms import TodoForm
 
 
 @app.route('/')
@@ -9,11 +10,13 @@ def index() :
     to_do_list = Todo.query.all()
     return render_template( 'index.html', list = to_do_list)
 
-@app.route('/add')
+@app.route('/add', methods = ['GET', 'POST'] )
 def add() :
-    new_task = Todo( task = "New Task" )
-    db.session.add(new_task)
-    db.session.commit()
+    form = TodoForm()
+    if form.validate_on_submit() :
+        new_todo = Todo( task = form.task.data )
+        db.session.add(new_todo)
+        db.session.commit()
     return redirect(url_for('index'))
 
 @app.route( '/complete/<int:todo_id>' )
@@ -21,14 +24,15 @@ def complete( todo_id ) :
     todo_to_update = Todo.query.get( todo_id )
     todo_to_update.complete = True
     db.session.commit()
-    return redirect( url_for( 'index' )
+    return redirect( url_for( 'index' ))
+
 
 @app.route( '/incomplete/<int:todo_id>' )
 def incomplete( todo_id ) :
     todo_to_update = Todo.query.get( todo_id )
     todo_to_update.complete = False
     db.session.commit()
-    return redirect( url_for('index')
+    return redirect( url_for( 'index' ))
 
 @app.route( '/update/<task>' )
 def update( task ) :
