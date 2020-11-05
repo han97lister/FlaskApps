@@ -9,7 +9,7 @@ class TodoCheck :
         self.message = message
 
     def __call__( self, form, field ) :
-       all_todos = Todo.query.add()
+       all_todos = Todo.query.all()
        for todo in all_todos :
            if todo.task == field.data :
                raise ValidationError( self.message )
